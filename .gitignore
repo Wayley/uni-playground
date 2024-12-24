@@ -19,3 +19,11 @@ dist
 *.njsproj
 *.sln
 *.sw?
+*.vscode
+
+# uni-x
+*.hbuilderx
+unpackage
+
+# SCSS
+*.css
