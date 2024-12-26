@@ -5,6 +5,18 @@
 			"style": {
 				"navigationBarTitleText": "uni-app"
 			}
+		},
+		{
+			"path": "pages/env/index",
+			"style": {
+				"navigationBarTitleText": "multi-env"
+			}
+		},
+		{
+			"path": "pages/logger/index",
+			"style": {
+				"navigationBarTitleText": "uni-logger"
+			}
 		}
 	],
 	"globalStyle": {
@@ -12,5 +24,11 @@
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8"
+	},
+	"easycom": {
+		"autoscan": true,
+		"custom": {
+			"^uv-(.*)": "@climblee/uv-ui/components/uv-$1/uv-$1.vue"
+		}
 	}
 }
