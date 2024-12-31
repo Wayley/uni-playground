@@ -17,6 +17,18 @@
 			"style": {
 				"navigationBarTitleText": "uni-logger"
 			}
+		},
+		{
+			"path": "pages/bluetooth/index",
+			"style": {
+				"navigationBarTitleText": "uni-bluetooth"
+			}
+		},
+		{
+			"path": "pages/bluetooth-double/index",
+			"style": {
+				"navigationBarTitleText": "uni-bluetooth-double"
+			}
 		}
 	],
 	"globalStyle": {
