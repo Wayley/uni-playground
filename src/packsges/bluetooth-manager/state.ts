@@ -1,5 +1,5 @@
 import { createPinia, defineStore } from 'pinia';
-import { TAG } from '.';
+export const TAG = 'WING-UNI-BLUETOOTH';
 
 const pinia = createPinia();
 

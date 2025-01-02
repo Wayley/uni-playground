@@ -1,8 +1,6 @@
 import WingUniPermission, { WingUniPermissionTypeEnum } from '@wing-uni/permission';
 import WingUniSystem, { WingUniSystemURLEnum } from '@wing-uni/system';
-import { useAdapterAvailableStateStore, useAdapterDiscoveringStateStore, useBLECharacteristicValueStore, useBLEConnectionStateStore, useDiscoveredDevicesStore } from './state';
-
-export const TAG = 'WING-UNI-BLUETOOTH';
+import { TAG, useAdapterAvailableStateStore, useAdapterDiscoveringStateStore, useBLECharacteristicValueStore, useBLEConnectionStateStore, useDiscoveredDevicesStore } from './state';
 
 type OmittedOmitedAsyncOptions = 'success' | 'fail' | 'complete';
 
