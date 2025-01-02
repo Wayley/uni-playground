@@ -1,16 +1,36 @@
 <template>
   <uv-button @click="init">init</uv-button>
+  <view v-for="{ deviceId } in discoveredDevices.devices">{{ deviceId }}</view>
 </template>
 
 <script setup lang="ts">
 import { BluetoothManager, type BluetoothManagerError } from '@/packsges/bluetooth-manager';
 import { useDiscoveredDevicesStore } from '@/packsges/bluetooth-manager/state';
-import WingUniSystem from '@/packsges/system';
+
+import { onHide, onLoad, onShow } from '@dcloudio/uni-app';
+import WingUniSystem from '@wing-uni/system';
+import { onUnmounted } from 'vue';
 
 const bluetoothManager = BluetoothManager.getInstance();
+console.log('INIT');
+
+onLoad(() => {
+  console.log('Load');
+});
+onShow(() => {
+  console.log('Show');
+});
+
+onHide(() => {
+  console.log('Hide');
+});
+
+onUnmounted(async () => {
+  await stopScan();
+  console.log('Unmounted');
+});
 
 async function init() {
-  console.log('INIT');
   try {
     const r = await bluetoothManager.openAdapter();
     console.log(r);
@@ -47,12 +67,18 @@ async function showAuthRequestModal() {
 
 /**发现设备 */
 const discoveredDevices = useDiscoveredDevicesStore();
-discoveredDevices.$subscribe((_, { devices }) => {
-  console.log(devices.length);
-});
+
 async function startScan() {
   try {
     const r = await bluetoothManager.startScan();
+    console.log(r);
+  } catch (error) {
+    console.error(error);
+  }
+}
+async function stopScan() {
+  try {
+    const r = await bluetoothManager.stopScan();
     console.log(r);
   } catch (error) {
     console.error(error);

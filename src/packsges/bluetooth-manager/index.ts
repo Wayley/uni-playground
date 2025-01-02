@@ -1,6 +1,5 @@
-import WingUniPermission, { WingUniPermissionTypeEnum } from '@/packsges/permission';
-import WingUniSystem, { WingUniSystemURLEnum } from '@/packsges/system';
-
+import WingUniPermission, { WingUniPermissionTypeEnum } from '@wing-uni/permission';
+import WingUniSystem, { WingUniSystemURLEnum } from '@wing-uni/system';
 import { useAdapterAvailableStateStore, useAdapterDiscoveringStateStore, useBLECharacteristicValueStore, useBLEConnectionStateStore, useDiscoveredDevicesStore } from './state';
 
 export const TAG = 'WING-UNI-BLUETOOTH';
@@ -22,6 +21,18 @@ export class BluetoothManager {
     return WingUniSystem.openSystemSetting(WingUniSystemURLEnum.BLUETOOTH);
   }
   requestBluetoothPermissions() {
+    // const ActivityCompat = plus.android.importClass('androidx.core.app.ActivityCompat');
+    // const ContextCompat = plus.android.importClass('androidx.core.content.ContextCompat');
+    // const PackageManager = plus.android.importClass('android.content.pm.PackageManager');
+    // const mainActivity = plus.android.runtimeMainActivity();
+    // ['android.permission.BLUETOOTH', 'android.permission.BLUETOOTH_SCAN', 'android.permission.ACCESS_FINE_LOCATION'].forEach((p) => {
+    //   const e = ActivityCompat.shouldShowRequestPermissionRationale(mainActivity, p);
+    //   const d = ContextCompat.checkSelfPermission(mainActivity, p);
+    //   if (d == PackageManager.PERMISSION_DENIED) {
+    //     console.log(`HHHHHHHHHHHHHHH ${d}`);
+    //   }
+    //   console.log(`${p} = ${e}  ${d}`);
+    // });
     return WingUniPermission.requestPermissions(WingUniPermissionTypeEnum.BLUETOOTH);
   }
   openAdapter() {
@@ -34,6 +45,7 @@ export class BluetoothManager {
     return uni.getBluetoothAdapterState();
   }
   startScan(options?: Omit<UniNamespace.StartBluetoothDevicesDiscoveryOptions, OmittedOmitedAsyncOptions>) {
+    useDiscoveredDevicesStore().$patch({ devices: [] });
     return uni.startBluetoothDevicesDiscovery(options);
   }
   stopScan() {
