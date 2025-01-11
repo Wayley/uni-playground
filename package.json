@@ -35,7 +35,8 @@
     "@wing-uni/system": "^0.0.4",
     "pinia": "2.0.36",
     "vue": "^3.4.21",
-    "vue-i18n": "^9.14.0"
+    "vue-i18n": "^9.14.0",
+    "wing-async-retry": "^0.0.4"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.4.8",

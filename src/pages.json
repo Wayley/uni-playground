@@ -25,6 +25,12 @@
 			}
 		},
 		{
+			"path": "pages/device-detail/index",
+			"style": {
+				"navigationBarTitleText": "uni-bluetooth-device-detail"
+			}
+		},
+		{
 			"path": "pages/bluetooth-double/index",
 			"style": {
 				"navigationBarTitleText": "uni-bluetooth-double"
