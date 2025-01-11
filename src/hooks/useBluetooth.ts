@@ -32,3 +32,5 @@ interface StartScanOptions {
   allowDuplicatesKey?: boolean;
   interval?: number;
 }
+
+export function useBluetooth() {}
