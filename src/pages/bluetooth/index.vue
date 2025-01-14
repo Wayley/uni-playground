@@ -1,62 +1,47 @@
 <template>
-  <uv-button @click="test">Test</uv-button>
-  <view style="margin-top: 20px"></view>
-  <uv-button @click="connect(deviceId)" v-for="{ deviceId } in arr">{{ deviceId }}</uv-button>
+  <uv-button>Available: {{ state.available }}</uv-button>
+  <uv-button>Discovering: {{ state.discovering }}</uv-button>
+  <uv-button>----------------------</uv-button>
+
+  <view class="cell" v-for="d in state.discoveredDevices">
+    <view v-for="(v, k) in d">
+      <text style="font-weight: 600">{{ k }} </text>
+      :{{ v }}
+    </view>
+  </view>
 </template>
 
 <script setup lang="ts">
-import { type Ref, ref } from 'vue';
-const UUID_SERVICE = '0000FF00-0000-1000-8000-00805F9B34FB';
-const UUID_READ = '0000FF01-0000-1000-8000-00805F9B34FB';
-const UUID_WRITE = '0000FF02-0000-1000-8000-00805F9B34FB';
-const arr: Ref<UniNamespace.BluetoothDeviceInfo[]> = ref([]);
+import { useBluetoothAdapter } from '@/hooks/useBluetoothAdaper';
+import { onLoad } from '@dcloudio/uni-app';
+import { onUnmounted, watch } from 'vue';
+const { state, startScan, stopScan } = useBluetoothAdapter();
 
-function getAB(hexArr: number[]) {
-  const buffer = new ArrayBuffer(hexArr.length);
-  const dataView = new DataView(buffer);
-  hexArr.forEach((hex, i) => dataView.setUint8(i, hex));
-  return buffer;
-}
+onLoad(() => {
+  startScan()
+    .then((e) => console.log('开始扫描'))
+    .catch((e) => console.error(e));
+});
+onUnmounted(() => {
+  console.log('Unmounted');
+  stopScan()
+    .then((e) => console.log('停止扫描'))
+    .catch((e) => console.error(e));
+});
 
-async function test() {
-  try {
-    await uni.openBluetoothAdapter();
-    uni.startBluetoothDevicesDiscovery({ services: [UUID_SERVICE] });
-    uni.onBluetoothDeviceFound(({ devices }) => {
-      const [device] = devices;
-      if (device.deviceId.includes('-F8541304733D')) arr.value.push(device);
-    });
-  } catch (error) {
-    console.error(error);
+watch(
+  () => state.discoveredDevices.length,
+  (v, _v) => {
+    console.log(`${_v} ==> ${v}`);
   }
-}
-function sleep(n = 1500) {
-  return new Promise((r) => setTimeout(() => r(true), n));
-}
-async function connect(deviceId: string) {
-  try {
-    // writeType?: "write" | "writeNoResponse";
-    await uni.stopBluetoothDevicesDiscovery();
-    await uni.createBLEConnection({ deviceId });
-    await sleep();
-    await uni.notifyBLECharacteristicValueChange({
-      deviceId,
-      characteristicId: UUID_READ,
-      serviceId: UUID_SERVICE,
-      state: true,
-    });
-    await sleep();
-    const value: unknown = getAB([0xff, 0xaa, 0x25, 0x00, 0x25]);
-    await uni.writeBLECharacteristicValue({
-      deviceId,
-      characteristicId: UUID_WRITE,
-      serviceId: UUID_SERVICE,
-      writeType: 'write',
-      value: value as any[],
-    });
-  } catch (error) {
-    console.error(error);
-  }
-}
+);
 </script>
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.cell {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-top: 10px;
+  font-size: 12px;
+  padding: 5px;
+}
+</style>
