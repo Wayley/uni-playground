@@ -15,7 +15,7 @@
 import { useBluetoothAdapter, type BluetoothDeviceInfo } from '@/hooks/useBluetoothAdaper';
 import { onLoad } from '@dcloudio/uni-app';
 import { onUnmounted, watch } from 'vue';
-const { state, startScan, stopScan } = useBluetoothAdapter<EnhancedBluetoothDeviceInfo>();
+const { state, startScan, stopScan } = useBluetoothAdapter<EnhancedBluetoothDeviceInfo>(enhance);
 
 function ab2hexArr(ab: ArrayBuffer): string[] {
   return Array.prototype.map.call(new Uint8Array(ab), (bit: number) => `00${bit.toString(16)}`.toUpperCase().slice(-2)) as string[];
@@ -41,7 +41,7 @@ interface EnhancedBluetoothDeviceInfo extends BluetoothDeviceInfo {
   productType?: string;
 }
 onLoad(() => {
-  startScan({ services: ['0000FF00-0000-1000-8000-00805F9B34FB'] }, enhance)
+  startScan({ services: ['0000FF00-0000-1000-8000-00805F9B34FB'] })
     .then((e) => console.log('开始扫描'))
     .catch((e) => console.error(e));
 });

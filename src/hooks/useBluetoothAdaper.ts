@@ -5,7 +5,7 @@ const WING_UNI_BLUETOOTH_FLAGS = {
   ADAPTER_LISTENERS_REGISTERED: false,
 };
 
-export function useBluetoothAdapter<T extends BluetoothDeviceInfo>() {
+export function useBluetoothAdapter<T extends BluetoothDeviceInfo>(enhancer?: (v: BluetoothDeviceInfo) => T | null) {
   const state: BluetoothAdapterState<T> = reactive({
     available: true,
     discovering: false,
@@ -25,7 +25,7 @@ export function useBluetoothAdapter<T extends BluetoothDeviceInfo>() {
     });
     uni.onBluetoothDeviceFound(({ devices }) => {
       const _device: unknown = devices[0];
-      const device = (enhancerHandler ? enhancerHandler(_device as T) : _device) as T | null;
+      const device = (enhancer ? enhancer(_device as T) : _device) as T | null;
       if (device) {
         const i = state.discoveredDevices.findIndex((o) => o.deviceId == device.deviceId);
         if (i > -1) state.discoveredDevices[i] = device;
@@ -70,10 +70,8 @@ export function useBluetoothAdapter<T extends BluetoothDeviceInfo>() {
       });
     });
 
-  let enhancerHandler: EnhancerHandler<BluetoothDeviceInfo> | undefined;
-  const startScan = (options?: ScanOptions, enhancer?: EnhancerHandler<T>): Promise<boolean> =>
+  const startScan = (options?: ScanOptions): Promise<boolean> =>
     new Promise(async (resolve, fail) => {
-      enhancerHandler = enhancer;
       try {
         await openAdapter();
       } catch (error) {
@@ -125,5 +123,3 @@ interface ScanOptions {
   allowDuplicatesKey?: boolean;
   interval?: number;
 }
-
-type EnhancerHandler<T extends BluetoothDeviceInfo> = (t: BluetoothDeviceInfo) => T | null;
