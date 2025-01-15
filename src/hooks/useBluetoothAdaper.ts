@@ -1,4 +1,4 @@
-import { reactive, readonly } from 'vue';
+import { readonly, ref, type Ref } from 'vue';
 
 const WING_UNI_BLUETOOTH_FLAGS = {
   ADAPTER_OPENED: false,
@@ -6,20 +6,18 @@ const WING_UNI_BLUETOOTH_FLAGS = {
 };
 
 export function useBluetoothAdapter<T extends BluetoothDeviceInfo>(enhancer?: (v: BluetoothDeviceInfo) => T | null) {
-  const state: BluetoothAdapterState<T> = reactive({
-    available: true,
-    discovering: false,
-    discoveredDevices: [],
-  });
+  const available = ref(true);
+  const discovering = ref(false);
+  const discoveredDevices: Ref<T[]> = ref([]);
 
   const registerListeners = () => {
-    uni.onBluetoothAdapterStateChange(({ discovering, available }) => {
-      if (!available || (!state.available && !state.discovering && available && discovering)) discovering = false;
+    uni.onBluetoothAdapterStateChange((e) => {
+      if (!e.available || (!available.value && !discovering.value && e.available && e.discovering)) e.discovering = false;
 
-      state.available = available;
-      state.discovering = discovering;
+      available.value = e.available;
+      discovering.value = e.discovering;
 
-      if (!available) {
+      if (!e.available) {
         // TODO: 更新GATT状态
       }
     });
@@ -27,9 +25,9 @@ export function useBluetoothAdapter<T extends BluetoothDeviceInfo>(enhancer?: (v
       const _device: unknown = devices[0];
       const device = (enhancer ? enhancer(_device as T) : _device) as T | null;
       if (device) {
-        const i = state.discoveredDevices.findIndex((o) => o.deviceId == device.deviceId);
-        if (i > -1) state.discoveredDevices[i] = device;
-        else state.discoveredDevices.push(device);
+        const i = discoveredDevices.value.findIndex((o) => o.deviceId == device.deviceId);
+        if (i > -1) discoveredDevices.value[i] = device;
+        else discoveredDevices.value.push(device);
       }
     });
 
@@ -77,8 +75,8 @@ export function useBluetoothAdapter<T extends BluetoothDeviceInfo>(enhancer?: (v
       } catch (error) {
         return fail(error);
       }
-      if (state.discovering) return resolve(true);
-      state.discoveredDevices = [];
+      if (discovering.value) return resolve(true);
+      discoveredDevices.value = [];
       uni.startBluetoothDevicesDiscovery({ ...options, success: (e) => resolve(true), fail });
     });
 
@@ -89,23 +87,19 @@ export function useBluetoothAdapter<T extends BluetoothDeviceInfo>(enhancer?: (v
       } catch (error) {
         return fail(error);
       }
-      if (!state.discovering) return resolve(true);
+      if (!discovering.value) return resolve(true);
       uni.stopBluetoothDevicesDiscovery({ success: (e) => resolve(true), fail });
     });
 
   return {
-    state: readonly(state),
+    available: readonly(available),
+    discovering: readonly(discovering),
+    discoveredDevices: readonly(discoveredDevices),
     openAdapter,
     closeApapter,
     startScan,
     stopScan,
   };
-}
-
-interface BluetoothAdapterState<T extends BluetoothDeviceInfo> {
-  available: boolean;
-  discovering: boolean;
-  discoveredDevices: T[];
 }
 
 export interface BluetoothDeviceInfo {
@@ -119,7 +113,7 @@ export interface BluetoothDeviceInfo {
 }
 interface ScanOptions {
   powerLevel?: 'low' | 'medium' | 'high';
-  services?: any[];
+  services?: string[];
   allowDuplicatesKey?: boolean;
   interval?: number;
 }

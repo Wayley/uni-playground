@@ -1,9 +1,9 @@
 <template>
-  <uv-button>Available: {{ state.available }}</uv-button>
-  <uv-button>Discovering: {{ state.discovering }}</uv-button>
+  <uv-button>Available: {{ available }}</uv-button>
+  <uv-button>Discovering: {{ discovering }}</uv-button>
   <uv-button>----------------------</uv-button>
 
-  <view class="cell" v-for="d in state.discoveredDevices">
+  <view class="cell" v-for="d in discoveredDevices">
     <view v-for="(v, k) in d">
       <text style="font-weight: 600">{{ k }} </text>
       :{{ v }}
@@ -15,7 +15,7 @@
 import { useBluetoothAdapter, type BluetoothDeviceInfo } from '@/hooks/useBluetoothAdaper';
 import { onLoad } from '@dcloudio/uni-app';
 import { onUnmounted, watch } from 'vue';
-const { state, startScan, stopScan } = useBluetoothAdapter<EnhancedBluetoothDeviceInfo>(enhance);
+const { available, discovering, discoveredDevices, startScan, stopScan } = useBluetoothAdapter<EnhancedBluetoothDeviceInfo>(enhance);
 
 function ab2hexArr(ab: ArrayBuffer): string[] {
   return Array.prototype.map.call(new Uint8Array(ab), (bit: number) => `00${bit.toString(16)}`.toUpperCase().slice(-2)) as string[];
@@ -53,7 +53,7 @@ onUnmounted(() => {
 });
 
 watch(
-  () => state.discoveredDevices.length,
+  () => discoveredDevices.value.length,
   (v, _v) => {
     console.log(`${_v} ==> ${v}`);
   }
