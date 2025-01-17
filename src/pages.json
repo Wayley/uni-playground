@@ -21,7 +21,8 @@
 		{
 			"path": "pages/bluetooth/index",
 			"style": {
-				"navigationBarTitleText": "uni-bluetooth"
+				"navigationBarTitleText": "uni-bluetooth",
+				"enablePullDownRefresh": true
 			}
 		},
 		{

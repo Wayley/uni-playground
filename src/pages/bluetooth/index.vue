@@ -1,40 +1,69 @@
 <template>
-  <uv-button>Available: {{ available }}</uv-button>
-  <uv-button>Discovering: {{ discovering }}</uv-button>
-  <uv-button>----------------------</uv-button>
+  <view>Available: {{ available }}</view>
+  <view>Discovering: {{ discovering }}</view>
 
-  <view class="cell" v-for="d in discoveredDevices">
-    <view v-for="(v, k) in d">
-      <text style="font-weight: 600">{{ k }} </text>
-      :{{ v }}
+  <view style="display: flex">
+    <view style="flex: 1">
+      <uv-divider :text="`原始扫描数据:${discoveredDevices.length}`" textSize="12" />
+      <view class="cell" v-for="d in discoveredDevices">
+        <view v-for="(v, k) in d">
+          <text style="font-weight: 600">{{ k }} </text> :{{ v }}
+        </view>
+      </view>
+    </view>
+
+    <view style="flex: 1; margin-left: 10px">
+      <uv-divider :text="`自定义扫描数据:${enhancedDiscoveredDevices.length}`" textSize="12" />
+      <view class="cell" v-for="d in enhancedDiscoveredDevices">
+        <view v-for="(v, k) in d" style="word-break: break-all">
+          <text style="font-weight: 600">{{ k }} </text> :{{ v }}
+        </view>
+      </view>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { useBluetoothAdapter } from '@/hooks/useBluetoothAdaper';
-import { onLoad } from '@dcloudio/uni-app';
-import { onUnmounted, watch } from 'vue';
-const { available, discovering, discoveredDevices, startScan, stopScan } = useBluetoothAdapter();
+import { available, discoveredDevices, discovering, startScan, stopScan } from '@/connectivity-kit';
+import { enhancedDiscoveredDevices, UUID_SERVICE } from '@/hooks/useEnhancedDevices';
+import { Utils } from '@/utils';
+import { onLoad, onPullDownRefresh } from '@dcloudio/uni-app';
+import { onUnmounted } from 'vue';
 
 onLoad(() => {
-  startScan()
-    .then((e) => console.log('开始扫描'))
-    .catch((e) => console.error(e));
+  init();
 });
 onUnmounted(() => {
   console.log('Unmounted');
-  stopScan()
-    .then((e) => console.log('停止扫描'))
-    .catch((e) => console.error(e));
 });
+onPullDownRefresh(() => {
+  init();
+  setTimeout(() => uni.stopPullDownRefresh(), 500);
+});
+async function init() {
+  try {
+    uni.showLoading({ title: '扫描中...', mask: true });
 
-watch(
-  () => discoveredDevices.value.length,
-  (v, _v) => {
-    console.log(`${_v} ==> ${v}`);
+    console.log('停止扫描');
+    await stopScan();
+    console.log('停止扫描 成功');
+
+    console.log('开始扫描');
+    await startScan({ services: [UUID_SERVICE] });
+    console.log('开始扫描 成功');
+
+    await Utils.sleep(5000);
+
+    console.log('停止扫描');
+    await stopScan();
+    console.log('停止扫描 成功');
+
+    enhancedDiscoveredDevices.value.sort((a, b) => (b?.RSSI ?? 0) - (a?.RSSI ?? 0));
+  } catch (error) {
+    console.error(error);
   }
-);
+  uni.hideLoading();
+}
 </script>
 <style scoped lang="scss">
 .cell {
