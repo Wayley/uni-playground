@@ -1,4 +1,5 @@
 import { onMounted, onUnmounted, readonly, type Ref, ref, watch, type WatchStopHandle } from 'vue';
+import { runWithLimitedTimeout, runWithLimitedTimes } from 'wing-async-retry';
 
 export declare namespace WingUniBluetooth {
   interface ScanOptions {
@@ -15,6 +16,20 @@ export declare namespace WingUniBluetooth {
     advertisData?: ArrayBuffer;
     advertisServiceUUIDs?: string[];
     serviceData?: string[];
+  }
+
+  interface NotifyOptions {
+    deviceId: string;
+    serviceId: string;
+    characteristicId: string;
+    state: boolean;
+  }
+
+  interface WriteOptions {
+    deviceId: string;
+    serviceId: string;
+    characteristicId: string;
+    value: ArrayBuffer;
   }
 }
 
@@ -72,7 +87,7 @@ const _available = ref(true);
 export const available = readonly(_available);
 const _bleConnectionState = ref({ deviceId: '', connected: false });
 const _bleCharacteristicValue = ref({ deviceId: '', serviceId: '', characteristicId: '', value: new ArrayBuffer() });
-
+export const bleCharacteristicValue = readonly(_bleCharacteristicValue);
 function addListeners() {
   if (!_listened.value) {
     _listened.value = true;
@@ -146,4 +161,76 @@ export function useWingUniBluetooth<T extends WingUniBluetooth.DeviceInfo>(enhan
   return {
     discoveredDevices: readonly(discoveredDevices),
   };
+}
+
+export function BLEConnect(options: { deviceId: string; timeout?: number }): Promise<boolean> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await openAdapter();
+    } catch (error) {
+      return reject(error);
+    }
+
+    uni.createBLEConnection({
+      ...options,
+      success: (e) => resolve(true),
+      fail: (e) => {
+        if (e?.code == -1) return resolve(true);
+        reject(e);
+      },
+    });
+  });
+}
+
+export function BLENotify(options: WingUniBluetooth.NotifyOptions): Promise<boolean> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await openAdapter();
+      await runWithLimitedTimeout(() => notify(options), { retryDelay: 10, retryTimeout: 5000 });
+      resolve(true);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function notify(options: WingUniBluetooth.NotifyOptions): Promise<boolean> {
+  return new Promise((resolve, fail) => {
+    uni.notifyBLECharacteristicValueChange({ ...options, success: (e) => resolve(true), fail });
+  });
+}
+
+export function BLEWrite(options: WingUniBluetooth.WriteOptions, max = 20, notifyOptions?: WingUniBluetooth.NotifyOptions): Promise<boolean> {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await BLEConnect({ deviceId: options.deviceId });
+      if (notifyOptions) await BLENotify(notifyOptions);
+      await runWithLimitedTimes(() => writeLong(options, max), { retryDelay: 5, retryTimes: 5 });
+      resolve(true);
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+function writeLong({ value, ...rest }: WingUniBluetooth.WriteOptions, max = 20): Promise<boolean> {
+  return new Promise(async (resolve, reject) => {
+    const n = Math.ceil(value.byteLength / max);
+    for (let i = 0; i < n; i++) {
+      const _value = value.slice(i * max, (i + 1) * max);
+      try {
+        await writeRetry({ ...rest, value: _value });
+      } catch (error) {
+        return reject(error);
+      }
+    }
+    return resolve(true);
+  });
+}
+function writeRetry(options: WingUniBluetooth.WriteOptions): Promise<boolean> {
+  return runWithLimitedTimes(() => write(options), { retryDelay: 5, retryTimes: 100 });
+}
+function write({ value, ...rest }: WingUniBluetooth.WriteOptions): Promise<boolean> {
+  return new Promise((resolve, fail) => {
+    const _value: unknown = value;
+    uni.writeBLECharacteristicValue({ ...rest, value: _value as any[], success: (e) => resolve(true), fail });
+  });
 }

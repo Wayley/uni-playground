@@ -18,7 +18,7 @@
 
     <view style="flex: 1.2; margin-left: 10px">
       <uv-divider :text="`增强后的扫描设备${s2.discoveredDevices.value.length}`" textSize="12" />
-      <view class="cell" v-for="d in s2.discoveredDevices.value">
+      <view class="cell" v-for="d in s2.discoveredDevices.value" @click="createGatt(d.deviceId)">
         <view style="word-break: break-all" v-for="(v, k) in d">{{ k }}: {{ v }}</view>
       </view>
     </view>
@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { discoveredDevices, discovering, startScan, stopScan, useWingUniBluetooth, type WingUniBluetooth } from '@/connectivity-kit';
+import { BLEConnect, discoveredDevices, discovering, startScan, stopScan, useWingUniBluetooth, type WingUniBluetooth } from '@/connectivity-kit';
 
 /**(普通)增强型 */
 const s1 = useWingUniBluetooth();
@@ -44,6 +44,7 @@ function ab2hexArr(ab: ArrayBuffer): string[] {
 }
 function enhancer(v: WingUniBluetooth.DeviceInfo): EnhancedDeviceInfo | null {
   if (!v?.advertisData) return null;
+  if (!v?.name?.includes('JBD48100') && !v?.localName?.includes('JBD48100')) return null;
   const hexArr = ab2hexArr(v.advertisData);
   const advertisHex = hexArr.join('');
   const macAddr = hexArr.slice(0, 6).join(':');
@@ -53,6 +54,21 @@ function enhancer(v: WingUniBluetooth.DeviceInfo): EnhancedDeviceInfo | null {
   return { ...v, advertisHex, macAddr, moduleType, soc, productType };
 }
 const s2 = useWingUniBluetooth<EnhancedDeviceInfo>(enhancer);
+
+function createGatt(deviceId: string) {
+  uni.showLoading({ title: '连接中' });
+  BLEConnect({ deviceId })
+    .then((e) => {
+      uni.showToast({ title: '连接成功' });
+      uni.navigateTo({ url: `/pages/device-detail/index?deviceId=${deviceId}` });
+    })
+    .catch((e) => {
+      uni.showToast({ title: '连接失败' });
+    })
+    .finally(() => {
+      uni.hideLoading();
+    });
+}
 </script>
 
 <style scoped lang="scss">
