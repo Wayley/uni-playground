@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { discoveredDevices, discovering, startScan, stopScan } from '@/connectivity-kit';
+import { discoveredDevices, discovering, startScan, stopScan } from '@wing-uni/bluetooth';
 </script>
 
 <style scoped lang="scss">

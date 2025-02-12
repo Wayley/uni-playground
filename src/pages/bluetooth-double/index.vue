@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { BLEConnect, discoveredDevices, discovering, startScan, stopScan, useWingUniBluetooth, type WingUniBluetooth } from '@/connectivity-kit';
+import { BLEConnect, discoveredDevices, discovering, startScan, stopScan, useWingUniBluetooth, type WingUniBluetooth } from '@wing-uni/bluetooth';
 
 /**(普通)增强型 */
 const s1 = useWingUniBluetooth();

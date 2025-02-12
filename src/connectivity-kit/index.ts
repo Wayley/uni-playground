@@ -31,6 +31,12 @@ export declare namespace WingUniBluetooth {
     characteristicId: string;
     value: ArrayBuffer;
   }
+
+  interface GattClient {
+    deviceId: string;
+    connected: boolean;
+    notifyMap: Map<string, boolean>;
+  }
 }
 
 const _discoveredDevice: Ref<WingUniBluetooth.DeviceInfo | null> = ref(null);
@@ -86,8 +92,19 @@ const _listened = ref(false);
 const _available = ref(true);
 export const available = readonly(_available);
 const _bleConnectionState = ref({ deviceId: '', connected: false });
-const _bleCharacteristicValue = ref({ deviceId: '', serviceId: '', characteristicId: '', value: new ArrayBuffer() });
+export const bleConnectionState = readonly(_bleConnectionState);
+
+const _bleCharacteristicValue: Ref<{
+  deviceId: string;
+  serviceId: string;
+  characteristicId: string;
+  value?: ArrayBuffer;
+}> = ref({ deviceId: '', serviceId: '', characteristicId: '', value: undefined });
 export const bleCharacteristicValue = readonly(_bleCharacteristicValue);
+
+const _gattClients: Ref<WingUniBluetooth.GattClient[]> = ref([]);
+export const gattClients = readonly(_gattClients);
+
 function addListeners() {
   if (!_listened.value) {
     _listened.value = true;
@@ -106,13 +123,25 @@ function addListeners() {
 
       if (!available || (!_available.value && !_discovering.value && available && discovering)) discovering = false;
       _discovering.value = discovering;
+      if (!available) {
+        _opened.value = false;
+        _gattClients.value.forEach((o) => {
+          o.connected = false;
+          o.notifyMap.clear();
+        });
+      }
     });
     uni.onBLEConnectionStateChange((bleConnectionState) => {
       _bleConnectionState.value = bleConnectionState;
+      const client = _gattClients.value.find((o) => o.deviceId == bleConnectionState.deviceId);
+      if (client) client.connected = bleConnectionState.connected;
     });
     uni.onBLECharacteristicValueChange(({ value, ...rest }) => {
       const _value: unknown = value;
-      _bleCharacteristicValue.value = { ...rest, value: _value as ArrayBuffer };
+      const ab = _value as ArrayBuffer;
+      if (ab.byteLength > 0) {
+        _bleCharacteristicValue.value = { ...rest, value: ab };
+      }
     });
   }
 }
@@ -140,7 +169,6 @@ export function useWingUniBluetooth<T extends WingUniBluetooth.DeviceInfo>(enhan
   let stop: WatchStopHandle;
 
   onMounted(() => {
-    console.warn('onMounted');
     stop = watch(_discoveredDevice, (v) => {
       if (v) {
         const device = enhancer ? enhancer(v) : v;
@@ -155,7 +183,6 @@ export function useWingUniBluetooth<T extends WingUniBluetooth.DeviceInfo>(enhan
     });
   });
   onUnmounted(() => {
-    console.warn('onUnmounted');
     stop();
   });
   return {
@@ -171,9 +198,15 @@ export function BLEConnect(options: { deviceId: string; timeout?: number }): Pro
       return reject(error);
     }
 
+    const client = _gattClients.value.find((o) => o.deviceId == options.deviceId);
+    if (client && client.connected) return resolve(true);
     uni.createBLEConnection({
       ...options,
-      success: (e) => resolve(true),
+      success: (e) => {
+        resolve(true);
+        if (client) client.connected = true;
+        else _gattClients.value.push({ deviceId: options.deviceId, connected: true, notifyMap: new Map() });
+      },
       fail: (e) => {
         if (e?.code == -1) return resolve(true);
         reject(e);
@@ -186,7 +219,7 @@ export function BLENotify(options: WingUniBluetooth.NotifyOptions): Promise<bool
   return new Promise(async (resolve, reject) => {
     try {
       await openAdapter();
-      await runWithLimitedTimeout(() => notify(options), { retryDelay: 10, retryTimeout: 5000 });
+      await runWithLimitedTimeout(() => notify(options), { retryDelay: 100, retryTimeout: 5000 });
       resolve(true);
     } catch (error) {
       return reject(error);
@@ -195,7 +228,25 @@ export function BLENotify(options: WingUniBluetooth.NotifyOptions): Promise<bool
 }
 function notify(options: WingUniBluetooth.NotifyOptions): Promise<boolean> {
   return new Promise((resolve, fail) => {
-    uni.notifyBLECharacteristicValueChange({ ...options, success: (e) => resolve(true), fail });
+    const client = _gattClients.value.find((o) => o.deviceId == options.deviceId);
+    const key = `${options.serviceId}_${options.characteristicId}`;
+    if (client && client.notifyMap.get(key)) return resolve(true);
+
+    uni.notifyBLECharacteristicValueChange({
+      ...options,
+      success: (e) => {
+        resolve(true);
+
+        if (client) {
+          client.notifyMap.set(key, true);
+        } else {
+          const notifyMap = new Map();
+          notifyMap.set(key, true);
+          _gattClients.value.push({ deviceId: options.deviceId, connected: true, notifyMap });
+        }
+      },
+      fail,
+    });
   });
 }
 

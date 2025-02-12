@@ -1,13 +1,17 @@
 <template>
   <view>DeviceId: {{ deviceId }}</view>
   <uv-button @click="write">Write</uv-button>
+  <uv-button @click="BLEDisConnect(deviceId)">DisConnect</uv-button>
 
   <view>RES: {{ res }}</view>
+
+  <view v-for="client in gattClients">{{ client.deviceId }}--{{ client.connected }}</view>
 </template>
 
 <script setup lang="ts">
-import { getModuleVersion2 } from '@/services/gatt/module-service';
+import { test } from '@/services/gatt/module-service';
 import { onLoad } from '@dcloudio/uni-app';
+import { BLEDisConnect, gattClients } from '@wing-uni/bluetooth';
 import { ref } from 'vue';
 
 const deviceId = ref('');
@@ -20,13 +24,9 @@ onLoad((query) => {
 function write() {
   uni.showLoading({ title: '读取中' });
 
-  getModuleVersion2(deviceId.value)
+  test(deviceId.value)
     .then((e) => {
       uni.showToast({ title: '读取成功' });
-      const arr: unknown = e.map((o) => `0x${o}`).slice(4, -1);
-      if (e.length > 0) res.value = String.fromCharCode(...(arr as number[]));
-
-      console.log(res.value);
     })
     .catch((e) => {
       console.error(e);

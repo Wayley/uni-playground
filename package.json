@@ -30,6 +30,7 @@
     "@dcloudio/uni-mp-weixin": "3.0.0-4020420240722002",
     "@dcloudio/uni-mp-xhs": "3.0.0-4020420240722002",
     "@dcloudio/uni-quickapp-webview": "3.0.0-4020420240722002",
+    "@wing-uni/bluetooth": "^0.0.6",
     "@wing-uni/logger": "^0.0.8",
     "@wing-uni/permission": "^0.0.4",
     "@wing-uni/system": "^0.0.4",
