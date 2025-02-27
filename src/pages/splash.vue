@@ -5,13 +5,13 @@
   </view>
 </template>
 <script setup lang="ts">
-import { useAppVersion } from '@/stores/useAppVersion';
+import { useAppVersion } from '@/hooks/useAppVersion';
 import { onLoad } from '@dcloudio/uni-app';
 const { appVersion } = useAppVersion();
 
 onLoad(() => {
   setTimeout(() => {
-    uni.reLaunch({ url: '/pages/index/index' });
+    uni.reLaunch({ url: '/pages/home' });
   }, 1500);
 });
 </script>
@@ -27,7 +27,7 @@ onLoad(() => {
 .logo {
   width: 72px;
   height: 72px;
-  background: url('/static/images/logo.png') no-repeat 100% 100%;
+  background-image: url('/static/images/logo.png');
   margin-top: 100px;
   margin-bottom: 10px;
 }

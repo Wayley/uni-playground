@@ -10,4 +10,11 @@ onHide(() => {
   console.log('App Hide');
 });
 </script>
-<style></style>
+<style lang="scss">
+@mixin flex {
+  display: flex;
+}
+.home {
+  @include flex;
+}
+</style>
