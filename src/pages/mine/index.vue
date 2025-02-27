@@ -1,5 +1,5 @@
 <template>
-  <uv-button>startScan</uv-button>
+  <view>Mine</view>
 </template>
 
 <script setup lang="ts"></script>

@@ -1,9 +1,23 @@
 {
 	"pages": [
 		{
+			"path": "pages/splash/index",
+			"style": {
+				"app-plus": {
+					"titleNView": false
+				}
+			}
+		},
+		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "uni-app"
+			}
+		},
+		{
+			"path": "pages/mine/index",
+			"style": {
+				"navigationBarTitleText": "mine"
 			}
 		},
 		{
@@ -26,18 +40,34 @@
 			}
 		},
 		{
-			"path": "pages/device-detail/index",
-			"style": {
-				"navigationBarTitleText": "uni-bluetooth-device-detail"
-			}
-		},
-		{
 			"path": "pages/bluetooth-double/index",
 			"style": {
 				"navigationBarTitleText": "uni-bluetooth-double"
 			}
+		},
+		{
+			"path": "pages/device-detail/index",
+			"style": {
+				"navigationBarTitleText": "uni-bluetooth-device-detail"
+			}
 		}
 	],
+	"tabBar": {
+		"color": "#707070",
+		"selectedColor": "#0484d2",
+		"borderStyle": "white",
+		"backgroundColor": "#F8F8F8",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "Home"
+			},
+			{
+				"pagePath": "pages/mine/index",
+				"text": "Mine"
+			}
+		]
+	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
