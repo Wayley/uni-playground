@@ -12,7 +12,7 @@ const { appVersion } = useAppVersion();
 onLoad(() => {
   setTimeout(() => {
     uni.reLaunch({ url: '/pages/home' });
-  }, 1500);
+  }, 500);
 });
 </script>
 <style scoped lang="scss">

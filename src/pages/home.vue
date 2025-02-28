@@ -1,44 +1,23 @@
 <template>
-  <view class="home home2">
-    Home
-    <button @click="test">show</button>
+  <view>
+    <view style="height: 200px; border: 1px solid red">12333333</view>
+    <button @click="go">Go</button>
   </view>
-  <view class="mask" v-if="show"></view>
 </template>
 
 <script setup lang="ts">
-import { onPullDownRefresh } from '@dcloudio/uni-app';
-import { ref } from 'vue';
+import { feedback } from '@/common/feedback';
 
-onPullDownRefresh(() => {
-  console.log('home pull down');
-  uni.stopPullDownRefresh();
-  uni.showLoading({ title: '加载中', mask: true });
-  setTimeout(() => {
-    uni.hideLoading();
-  }, 2000);
-});
-const show = ref(false);
-function test() {
-  show.value = true;
-  uni.hideTabBar();
-  setTimeout(() => {
-    show.value = false;
-    uni.showTabBar();
-  }, 2000);
+async function go() {
+  // uni.showToast({ icon: 'none' });
+  // setTimeout(() => {
+  //   feedback.showToast({ title: 'timeout' });
+  // }, 2000);
+  feedback.showToast({ title: '11111' });
+  feedback.showToast();
+  feedback.showToast({ title: '55555' });
+  feedback.showToast({ title: '0' });
 }
 </script>
 
-<style scoped lang="scss">
-.mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: var(--window-bottom, 0);
-  bottom: 0;
-  z-index: 9999;
-  background: #999;
-  opacity: 0.5;
-}
-</style>
+<style scoped lang="scss"></style>

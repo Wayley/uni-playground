@@ -10,6 +10,19 @@
 			}
 		},
 		{
+			"path": "pages/feedback",
+			"style": {
+				"navigationStyle": "custom",
+				"navigationBarTextStyle": "white",
+				"app-plus": {
+					"animationType": "fade-in",
+					"background": "transparent",
+					"backgroundColor": "transparent",
+					"popGesture": "none"
+				}
+			}
+		},
+		{
 			"path": "pages/home",
 			"style": {
 				"navigationBarTitleText": "Home",
