@@ -10,15 +10,12 @@
 			}
 		},
 		{
-			"path": "pages/feedback",
+			"path": "pages/discovering",
 			"style": {
-				"navigationStyle": "custom",
-				"navigationBarTextStyle": "white",
-				"app-plus": {
-					"animationType": "fade-in",
-					"background": "transparent",
-					"backgroundColor": "transparent",
-					"popGesture": "none"
+				"navigationBarTitleText": "Discovering",
+				"pullToRefresh": {
+					"support": true,
+					"style": "circle"
 				}
 			}
 		},
