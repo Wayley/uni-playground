@@ -1,11 +1,11 @@
 <template>
   <Mask class="flex">
-    <view class="toast">
+    <div class="toast">
       <template v-if="type">
         <icon :type="type == 'error' ? 'cancel' : type" :size="22" />
       </template>
-      <view>{{ content }}</view>
-    </view>
+      <div>{{ content }}</div>
+    </div>
   </Mask>
 </template>
 
@@ -26,7 +26,7 @@ export type ToastProps = {
 defineProps<ToastProps>();
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .flex {
   display: flex;
   justify-content: center;

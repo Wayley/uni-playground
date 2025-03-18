@@ -1,19 +1,19 @@
 <template>
   <Mask class="flex">
-    <view class="modal">
-      <view class="title">
+    <div class="modal">
+      <div class="title">
         <template v-if="!$slots.title">{{ title }}</template>
         <slot name="title" />
-      </view>
-      <view class="content">
+      </div>
+      <div class="content">
         <template v-if="!$slots.content">{{ content }}</template>
         <slot name="content" />
-      </view>
-      <view class="btns">
-        <view class="btn" v-if="showCancel" @click="emits('cancel')">取消</view>
-        <view class="btn actice-text" @click="emits('confirm')">确认</view>
-      </view>
-    </view>
+      </div>
+      <div class="btns">
+        <div class="btn" v-if="showCancel" @click="emits('cancel')">取消</div>
+        <div class="btn" :class="$style['actice-text']" @click="emits('confirm')">确认</div>
+      </div>
+    </div>
   </Mask>
 </template>
 
@@ -38,7 +38,7 @@ const emits = defineEmits<{
 }>();
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .flex {
   display: flex;
   justify-content: center;
@@ -49,28 +49,30 @@ const emits = defineEmits<{
   width: 85%;
   border-radius: 6px;
   color: #606266;
-  .title {
-    font-weight: 600;
-    text-align: center;
-    padding-top: 20px;
-  }
-  .content {
-    padding: 20px 10px;
-  }
-  .btns {
-    display: flex;
-    border-top: 1px solid #d6d7d9;
-  }
-  .btn {
-    flex: 1;
-    text-align: center;
-    padding: 15px 0;
-    & + .btn {
-      border-left: 1px solid #d6d7d9;
-    }
-  }
-  .actice-text {
-    color: #2979ff;
-  }
+}
+.title {
+  font-weight: 600;
+  text-align: center;
+  padding-top: 20px;
+}
+.content {
+  padding: 20px 10px;
+}
+.btns {
+  display: flex;
+  border-top: 1px solid #d6d7d9;
+}
+.btn {
+  flex: 1;
+  text-align: center;
+  padding: 15px 0;
+}
+.btn + .btn {
+  border-left: 1px solid #d6d7d9;
+}
+</style>
+<style module>
+.actice-text {
+  color: #2979ff;
 }
 </style>

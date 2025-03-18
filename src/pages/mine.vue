@@ -7,9 +7,9 @@
 </template>
 
 <script setup lang="ts">
-import { useFeedback } from '@/components/feedback';
 import { onPullDownRefresh } from '@dcloudio/uni-app';
 import { onMounted } from 'vue';
+import useFeedback from 'wing-feedback';
 
 onPullDownRefresh(() => {
   console.warn('Mine pull down');
@@ -21,7 +21,7 @@ onPullDownRefresh(() => {
   }, 2000);
 });
 
-const { showToast, showModal } = useFeedback();
+const { showToast, showModal, FeedbackProvider } = useFeedback();
 function test() {
   showToast({ content: 'mine-toast-1' });
   // showToast({ content: 'mine-toast-2' });
