@@ -10,11 +10,6 @@ onHide(() => {
   console.log('App Hide');
 });
 </script>
-<style lang="scss">
-@mixin flex {
-  display: flex;
-}
-.home {
-  @include flex;
-}
+<style>
+@import '../node_modules/wing-feedback/dist/index.css';
 </style>

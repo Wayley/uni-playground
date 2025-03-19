@@ -1,23 +1,31 @@
 <template>
   <FeedbackProvider>
-    <button @click="test1">showToast</button>
+    <button @click="goScan">+</button>
     <button @click="test2">showModal</button>
   </FeedbackProvider>
 </template>
 
 <script setup lang="ts">
-import { useFeedback } from '../libs/wing-feedback';
-const { showToast, showModal, FeedbackProvider } = useFeedback();
-function test1() {
-  console.log('showToast');
-  showToast({ content: 'Toast1', duration: 1000 });
-  showToast({ content: 'Toast2' });
-  showModal({ title: '提示', content: '内容啊1' });
+import { useFeedback } from 'wing-feedback';
+const { showToast, showModal, showLoading, FeedbackProvider } = useFeedback();
+
+async function goScan() {
+  const confirm = await showModal({ title: '提示', content: '确定前往扫描页面吗?', showCancel: true });
+  if (confirm) {
+    await showToast({ content: '前往中...' });
+    uni.navigateTo({ url: '/pages/discovering' });
+    await showToast({ content: '已打开页面' });
+  }
 }
 function test2() {
   console.log('showModal');
-  showModal({ title: '提示', content: '内容2啊' });
-  showToast({ content: 'Toast233' });
+  const closeLoading = showLoading({ content: 'dddd' });
+  setTimeout(() => {
+    closeLoading();
+  }, 1500);
+  showModal({ title: '提示', content: '这是Modal内容' });
+  showModal();
+  showToast({ content: 'Home Toast' });
 }
 </script>
 
